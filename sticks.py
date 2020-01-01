@@ -61,6 +61,8 @@ def update_hats(temp_value_save,ai_dict,winner):
 	for i in temp_value_save.keys():
 		for	value in temp_value_save[i]:
 			if(winner == True):
+				if(i == 2 and value == 2):
+					print("ERROR")
 				ai_dict[i].append(value)
 				ai_dict[i].append(value)
 			else:
@@ -79,7 +81,7 @@ def train_AI(ai_dict,num):
 	trainer_besides_blank = trainer_besides
 	player_num = 1
 	chosen_value = 0
-	for i in range(1000):
+	for i in range(100000):
 		#print(i)
 		while(sticks_num > 0):
 			if(player_num == 1):
@@ -87,31 +89,27 @@ def train_AI(ai_dict,num):
 				trainer_dict[sticks_num].remove(chosen_value)
 				#print(" 1 Number Searched: %d" % sticks_num)
 				trainer_besides[sticks_num].append(chosen_value)
-				sticks_num -= chosen_value
 				player_num = 2
+				sticks_num -= chosen_value
 			else:
 				chosen_value = random.choice(ai_dict[sticks_num])
 				#print(" 2 Number Searched: %d" % sticks_num)
 				comp_besides[sticks_num].append(chosen_value)
 				ai_dict[sticks_num].remove(chosen_value)
-				sticks_num -= chosen_value
 				player_num = 1
+				sticks_num -= chosen_value
 			
 
-		# print("Game: %d" % (i))
-		if(len(comp_besides[1]) == 0):
+		#print("Game: %d" % (i))
+		if(player_num == 2):
 			#print("AI Dict win")
 			ai_dict = update_hats(comp_besides,ai_dict,True)
 			trainer_dict = update_hats(trainer_besides,trainer_dict,False)
-		elif ((len(trainer_besides[1])) == 0):
+		else:
 			#print("trainer win")
 			trainer_dict = update_hats(trainer_besides,trainer_dict,True)
 			ai_dict = update_hats(comp_besides,ai_dict,False)
-		else:
-			print("WARNING: no hats updated")
-			print(trainer_besides[1])
-			print(comp_besides[1])
-
+		
 		
 		
 		sticks_num = num
