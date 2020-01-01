@@ -1,7 +1,7 @@
 import random
 
-def player_vs_player():
-	sticks_num = 20
+def player_vs_player(num):
+	sticks_num = num
 	player_num = 1
 	while(sticks_num > 0):
 		sticks_num = take_sticks(player_num,sticks_num)
@@ -25,17 +25,17 @@ def initialize_dict(sticks_num):
 	#print(ai_dict)
 	return ai_dict
 
-def initialize_array(sticks_num):
-	ai_array = []
+def initialize_bdict(sticks_num):
+	ai_dict = {}
 	for i in range(0,sticks_num + 1,1):
-		ai_array.append([])
-	return ai_array
+		ai_dict[i] = []
+	return ai_dict
 		
 	
 
-def player_vs_AI(ai_dict):
-	sticks_num = 20
-	temp_value_save = initialize_array(sticks_num)
+def player_vs_AI(ai_dict,num):
+	sticks_num = num
+	besides_dict = initialize_bdict(sticks_num)
 	
 	human_turn = True
 	while(sticks_num > 0):
@@ -44,47 +44,70 @@ def player_vs_AI(ai_dict):
 			human_turn = False
 		else:
 			chosen_value = random.choice(ai_dict[sticks_num])
+			print(ai_dict[sticks_num])
 			print("AI chose %d" % (chosen_value))
-			temp_value_save[sticks_num].append(chosen_value)
+			besides_dict[sticks_num].append(chosen_value)
+			ai_dict[sticks_num].remove(chosen_value)
 			sticks_num -= chosen_value
 			human_turn = True
 	if(human_turn == False):
-		ai_dict = save_choices(temp_value_save,ai_dict)
+		ai_dict = update_hats(besides_dict,ai_dict,True)
+	else:
+		ai_dict = update_hats(besides_dict,ai_dict,False)
 	return human_turn
 		
-def save_choices(temp_value_save,ai_dict):
+def update_hats(temp_value_save,ai_dict,winner):
+	
 	for i in range(0,len(temp_value_save)):
 		for	value in temp_value_save[i]:
-			ai_dict[i].append(value)
+			if(winner == True):
+				ai_dict[i].append(value)
+				ai_dict[i].append(value)
+			else:
+				if value not in ai_dict[i]:
+					ai_dict[i].append(value)
+
 	return ai_dict
 
-def train_AI(ai_dict):
-	sticks_num = 20
-	comp_array = initialize_array(sticks_num)
+def train_AI(ai_dict,num):
+	sticks_num = num
+	comp_besides = initialize_bdict(sticks_num)
+	comp_besides_blank = comp_besides
 	trainer_dict = initialize_dict(sticks_num)
-	trainer_array = initialize_array(sticks_num)
+	trainer_besides = initialize_bdict(sticks_num)
+	trainer_besides_blank = trainer_besides
 	player_num = 1
 	chosen_value = 0
-	for i in range(0,100000,1):
-		
+	for i in range(1000):
+		#print(i)
 		while(sticks_num > 0):
 			if(player_num == 1):
 				chosen_value = random.choice(trainer_dict[sticks_num])
-				trainer_array[sticks_num].append(chosen_value)
+				#print(" 1 Number Searched: %d" % sticks_num)
+				trainer_besides[sticks_num].append(chosen_value)
 				
 				player_num = 2
 			else:
 				chosen_value = random.choice(ai_dict[sticks_num])
 				player_num = 1
-				comp_array[sticks_num].append(chosen_value)
+				#print(" 2 Number Searched: %d" % sticks_num)
+				comp_besides[sticks_num].append(chosen_value)
 				
 			sticks_num -= chosen_value
-		if(player_num == 2):
-			ai_dict = save_choices(comp_array,ai_dict)
-		else:
-			trainer_dict = save_choices(trainer_array,trainer_dict)
+
 		
-		return ai_dict
+		if(player_num == 2):
+			ai_dict = update_hats(comp_besides,ai_dict,False)
+			trainer_dict = update_hats(trainer_besides,trainer_dict,True)
+		else:
+			trainer_dict = update_hats(trainer_besides,trainer_dict,False)
+			ai_dict = update_hats(comp_besides,ai_dict,True)
+
+		comp_besides = comp_besides_blank
+		trainer_besides = trainer_besides_blank
+		sticks_num = num
+		player_num = 1
+	return ai_dict
 
 def take_sticks(player_num,sticks_num):
 	sticks_to_take = 3
@@ -113,23 +136,30 @@ def take_sticks(player_num,sticks_num):
 def main():
 	continue_game = 1
 	ai_dict = initialize_dict(20)
+	trained_dict = False
+	print("Welcome to the Game of Sticks\nHow many sticks are there on the table initially (10-100)?")
+	sticks_num = int(input())
+	ai_dict = initialize_dict(sticks_num)
 	while(continue_game == 1):
-		print("Welcome to Sticks! Please select a game mode:\n1. Player vs. Player\n2.Train an AI\n3.Play Against a Pre-Trained AI\n4.Quit")
+		print("Options\n1. Player vs. Player\n2.Train an AI\n3.Play Against a Pre-Trained AI\n4.Quit")
 		choice = int(input())
 		if(choice == 1):
-			winner = player_vs_player()
+			winner = player_vs_player(sticks_num)
 			print("Player %d Wins!" % winner)
 		elif(choice == 2):
-			is_player_winner = player_vs_AI(ai_dict)
+			is_player_winner = player_vs_AI(ai_dict,sticks_num)
 			if(is_player_winner == False):
 				print("AI wins! Better luck next time!")
 			else:
 				print("You win!")
 		elif(choice == 3):
-			print("Training AI...")
-			ai_dict = train_AI(ai_dict)
-			print("AI trained. Starting game...")
-			is_player_winner = player_vs_AI(ai_dict)
+			if(trained_dict == False):
+				print("Training AI...")
+				ai_dict = train_AI(ai_dict,sticks_num)
+				trained_dict = True
+				print("AI trained. Starting game...")
+			print_ai(ai_dict)
+			is_player_winner = player_vs_AI(ai_dict,sticks_num)
 			if(is_player_winner == False):
 				print("AI wins! Better luck next time!")
 			else:
@@ -142,6 +172,15 @@ def main():
 		continue_game = int(input())
 	print("Thank you for Playing Sticks")
 	
-
+def print_ai(ai_dict):
+	out_file = open("dict_analysis.txt","w")
+	for item in ai_dict.keys():
+		out_file.write("Hat:" + " "  + str(item)+ " " + "(")
+		out_file.write(str(ai_dict[item].count(1)) + " " +",")
+		out_file.write(str(ai_dict[item].count(2)) + " " + ",")
+		out_file.write(str(ai_dict[item].count(3)))
+		out_file.write(")\n")
+	out_file.close()
+	return 0
 
 main()
