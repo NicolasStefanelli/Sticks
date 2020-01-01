@@ -27,7 +27,7 @@ def initialize_dict(sticks_num):
 
 def initialize_bdict(sticks_num):
 	ai_dict = {}
-	for i in range(0,sticks_num + 1,1):
+	for i in range(1,sticks_num + 1,1):
 		ai_dict[i] = []
 	return ai_dict
 		
@@ -58,7 +58,7 @@ def player_vs_AI(ai_dict,num):
 		
 def update_hats(temp_value_save,ai_dict,winner):
 	
-	for i in range(0,len(temp_value_save)):
+	for i in temp_value_save.keys():
 		for	value in temp_value_save[i]:
 			if(winner == True):
 				ai_dict[i].append(value)
@@ -73,6 +73,7 @@ def train_AI(ai_dict,num):
 	sticks_num = num
 	comp_besides = initialize_bdict(sticks_num)
 	comp_besides_blank = comp_besides
+	print(comp_besides_blank)
 	trainer_dict = initialize_dict(sticks_num)
 	trainer_besides = initialize_bdict(sticks_num)
 	trainer_besides_blank = trainer_besides
@@ -87,34 +88,36 @@ def train_AI(ai_dict,num):
 				#print(" 1 Number Searched: %d" % sticks_num)
 				trainer_besides[sticks_num].append(chosen_value)
 				sticks_num -= chosen_value
-				if(sticks_num <= 0):
-					break
-				else:
-					player_num = 2
+				player_num = 2
 			else:
 				chosen_value = random.choice(ai_dict[sticks_num])
 				#print(" 2 Number Searched: %d" % sticks_num)
 				comp_besides[sticks_num].append(chosen_value)
 				ai_dict[sticks_num].remove(chosen_value)
 				sticks_num -= chosen_value
-				if(sticks_num <= 0):
-					break
-				else:
-					player_num = 1
+				player_num = 1
 			
 
-		
-		if(player_num == 2):
+		# print("Game: %d" % (i))
+		if(len(comp_besides[1]) == 0):
+			#print("AI Dict win")
 			ai_dict = update_hats(comp_besides,ai_dict,True)
 			trainer_dict = update_hats(trainer_besides,trainer_dict,False)
-		else:
+		elif ((len(trainer_besides[1])) == 0):
+			#print("trainer win")
 			trainer_dict = update_hats(trainer_besides,trainer_dict,True)
 			ai_dict = update_hats(comp_besides,ai_dict,False)
+		else:
+			print("WARNING: no hats updated")
+			print(trainer_besides[1])
+			print(comp_besides[1])
 
-		comp_besides = comp_besides_blank
-		trainer_besides = trainer_besides_blank
+		
+		
 		sticks_num = num
 		player_num = 1
+		comp_besides = initialize_bdict(sticks_num)
+		trainer_besides = initialize_bdict(sticks_num)
 	return ai_dict
 
 def take_sticks(player_num,sticks_num):
