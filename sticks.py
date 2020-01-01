@@ -83,25 +83,33 @@ def train_AI(ai_dict,num):
 		while(sticks_num > 0):
 			if(player_num == 1):
 				chosen_value = random.choice(trainer_dict[sticks_num])
+				trainer_dict[sticks_num].remove(chosen_value)
 				#print(" 1 Number Searched: %d" % sticks_num)
 				trainer_besides[sticks_num].append(chosen_value)
-				
-				player_num = 2
+				sticks_num -= chosen_value
+				if(sticks_num <= 0):
+					break
+				else:
+					player_num = 2
 			else:
 				chosen_value = random.choice(ai_dict[sticks_num])
-				player_num = 1
 				#print(" 2 Number Searched: %d" % sticks_num)
 				comp_besides[sticks_num].append(chosen_value)
-				
-			sticks_num -= chosen_value
+				ai_dict[sticks_num].remove(chosen_value)
+				sticks_num -= chosen_value
+				if(sticks_num <= 0):
+					break
+				else:
+					player_num = 1
+			
 
 		
 		if(player_num == 2):
-			ai_dict = update_hats(comp_besides,ai_dict,False)
-			trainer_dict = update_hats(trainer_besides,trainer_dict,True)
-		else:
-			trainer_dict = update_hats(trainer_besides,trainer_dict,False)
 			ai_dict = update_hats(comp_besides,ai_dict,True)
+			trainer_dict = update_hats(trainer_besides,trainer_dict,False)
+		else:
+			trainer_dict = update_hats(trainer_besides,trainer_dict,True)
+			ai_dict = update_hats(comp_besides,ai_dict,False)
 
 		comp_besides = comp_besides_blank
 		trainer_besides = trainer_besides_blank
